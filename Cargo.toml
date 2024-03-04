@@ -3,6 +3,12 @@ name = "rustcore"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "rustcore"
+# "cdylib" is necessary to produce a shared library for Python to import from.
+# 这个表示编译时候使用的c标准的动态库 Python的底层就是用c语言写的，必须是c标准库，Python才能导入
+create-type = ["cdylib"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
