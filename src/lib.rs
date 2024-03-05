@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use pyo3::prelude::*;
+use serde::{Deserialize, Serialize};
 
 #[pyfunction]
 fn say_hello_to_python() -> PyResult<String> {
@@ -83,6 +84,23 @@ impl RustStruct {
     }
 }
 
+#[pyfunction]
+fn human_say_hi(human_data: String) {
+    println!("{}", human_data);
+    let human: Human = serde_json::from_str(&human_data).unwrap();
+
+    println!(
+        "Now we can work with the struct:\n {:#?}.\n {} is {} years old.",
+        human, human.name, human.age,
+    )
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Human {
+    name: String,
+    age: u8,
+}
+
 #[pymodule]
 fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(say_hello_to_python, m)?)?;
@@ -92,6 +110,7 @@ fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(list_sum, m)?)?;
     m.add_function(wrap_pyfunction!(dict_printer, m)?)?;
     let _ = m.add_class::<RustStruct>();
+    m.add_function(wrap_pyfunction!(human_say_hi, m)?)?;
 
     Ok(())
 }
