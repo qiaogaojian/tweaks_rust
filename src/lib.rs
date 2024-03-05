@@ -29,11 +29,20 @@ fn get_fibonacci(number: isize) -> PyResult<u128> {
     Ok(sum)
 }
 
+#[pyfunction]
+fn benchmark_get_fibonacci(num: isize) -> PyResult<()> {
+    for _i in 1..num {
+        let _ = get_fibonacci(100);
+    }
+    Ok(())
+}
+
 #[pymodule]
 fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(say_hello_to_python, m)?)?;
     m.add_function(wrap_pyfunction!(greet, m)?)?;
     m.add_function(wrap_pyfunction!(get_fibonacci, m)?)?;
+    m.add_function(wrap_pyfunction!(benchmark_get_fibonacci, m)?)?;
 
     Ok(())
 }
