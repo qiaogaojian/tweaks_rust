@@ -1,14 +1,12 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+use pyo3::prelude::*;
+
+#[pyfunction]
+fn say_hello_to_python() -> PyResult<String> {
+    Ok("Hello, Python!".to_string())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+#[pymodule]
+fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(say_hello_to_python, m)?)?;
+    Ok(())
 }
