@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use pyo3::prelude::*;
 
 #[pyfunction]
@@ -46,6 +47,13 @@ fn list_sum(arr: Vec<isize>) -> PyResult<isize> {
     Ok(sum)
 }
 
+#[pyfunction]
+fn dict_printer(map: HashMap<String, String>) {
+    for (key, value) in map {
+        println!("{} {}", key, value);
+    }
+}
+
 #[pymodule]
 fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(say_hello_to_python, m)?)?;
@@ -53,6 +61,7 @@ fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_fibonacci, m)?)?;
     m.add_function(wrap_pyfunction!(benchmark_get_fibonacci, m)?)?;
     m.add_function(wrap_pyfunction!(list_sum, m)?)?;
+    m.add_function(wrap_pyfunction!(dict_printer, m)?)?;
 
     Ok(())
 }
