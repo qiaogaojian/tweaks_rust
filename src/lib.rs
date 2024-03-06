@@ -1,136 +1,22 @@
-use std::collections::HashMap;
 use pyo3::prelude::*;
+use pyo3::wrap_pymodule;
 use serde::{Deserialize, Serialize};
-use log::{debug, error, info, warn};
 use pyo3_log;
 
+mod learn;
 
-#[pyfunction]
-fn say_hello_to_python() -> PyResult<String> {
-    Ok("Hello, Python!".to_string())
-}
-
-#[pyfunction]
-fn greet(name: &str) -> PyResult<String> {
-    Ok(format!("Hello, {}!", name))
-}
-
-#[pyfunction]
-fn get_fibonacci(number: isize) -> PyResult<u128> {
-    if number == 1 {
-        return Ok(1);
-    } else if number == 2 {
-        return Ok(2);
-    }
-
-    let mut sum = 0;
-    let mut last = 0;
-    let mut curr = 1;
-    for _ in 1..number {
-        sum = last + curr;
-        last = curr;
-        curr = sum;
-    }
-    Ok(sum)
-}
-
-#[pyfunction]
-fn benchmark_get_fibonacci(num: isize) -> PyResult<u128> {
-    for _i in 1..num {
-        let _ = get_fibonacci(100);
-    }
-    Ok(num as u128)
-}
-
-#[pyfunction]
-fn list_sum(arr: Vec<isize>) -> PyResult<isize> {
-    let mut sum: isize = 0;
-    for i in arr {
-        sum += i;
-    }
-    Ok(sum)
-}
-
-#[pyfunction]
-fn dict_printer(map: HashMap<String, String>) {
-    for (key, value) in map {
-        println!("{} {}", key, value);
-    }
-}
-
-#[pyclass] // above the struct definition, used to expose the class in Python.
-pub struct RustStruct {
-    #[pyo3(get, set)] // use these macros in case you want to be able to get or set the struct fields in Python.
-    pub data: String,
-    #[pyo3(get, set)]
-    pub vector: Vec<u8>,
-}
-
-#[pymethods] // above the impl block, used to expose the struct methods in Python as class methods.
-impl RustStruct {
-    #[new] // above the constructor, this is to be able to contstruct the struct as a class in Python.
-    pub fn new(data: String, vector: Vec<u8>) -> RustStruct {
-        RustStruct { data, vector }
-    }
-
-    pub fn printer(&self) {
-        println!("{}", self.data);
-        for i in &self.vector {
-            println!("{}", i);
-        }
-    }
-
-    pub fn extend_vector(&mut self, extension: Vec<u8>) {
-        for i in extension {
-            self.vector.push(i);
-        }
-    }
-}
-
-#[pyfunction]
-fn human_say_hi(human_data: String) {
-    println!("{}", human_data);
-    let human: Human = serde_json::from_str(&human_data).unwrap();
-
-    println!(
-        "Now we can work with the struct:\n {:#?}.\n {} is {} years old.",
-        human, human.name, human.age,
-    )
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Human {
-    name: String,
-    age: u8,
-}
-
-#[pyfunction]
-fn log_different_levels() {
-    info!("logging an info message");
-    warn!("logging a warning");
-    debug!("logging a debug message");
-    error!("logging an error");
-}
-
-#[pyfunction]
-fn log_example() {
-    info!("A log message from {}!", "Rust");
-}
+use learn::hello_world::hello_world;
+use learn::learn_json::learn_json;
+use learn::learn_logger::learn_logger;
+use learn::learn_struct::learn_struct;
 
 #[pymodule]
 fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(say_hello_to_python, m)?)?;
-    m.add_function(wrap_pyfunction!(greet, m)?)?;
-    m.add_function(wrap_pyfunction!(get_fibonacci, m)?)?;
-    m.add_function(wrap_pyfunction!(benchmark_get_fibonacci, m)?)?;
-    m.add_function(wrap_pyfunction!(list_sum, m)?)?;
-    m.add_function(wrap_pyfunction!(dict_printer, m)?)?;
-    let _ = m.add_class::<RustStruct>();
-    m.add_function(wrap_pyfunction!(human_say_hi, m)?)?;
-
-    pyo3_log::init();
-    m.add_wrapped(wrap_pyfunction!(log_example))?;
-    m.add_wrapped(wrap_pyfunction!(log_different_levels))?;
+    // 添加子模块到主模块
+    m.add_wrapped(wrap_pymodule!(hello_world))?;
+    m.add_wrapped(wrap_pymodule!(learn_json))?;
+    m.add_wrapped(wrap_pymodule!(learn_logger))?;
+    m.add_wrapped(wrap_pymodule!(learn_struct))?;
 
     Ok(())
 }
