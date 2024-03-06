@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
+use log::{debug, error, info, warn};
+use pyo3_log;
+
 
 #[pyfunction]
 fn say_hello_to_python() -> PyResult<String> {
@@ -101,6 +104,19 @@ struct Human {
     age: u8,
 }
 
+#[pyfunction]
+fn log_different_levels() {
+    info!("logging an info message");
+    warn!("logging a warning");
+    debug!("logging a debug message");
+    error!("logging an error");
+}
+
+#[pyfunction]
+fn log_example() {
+    info!("A log message from {}!", "Rust");
+}
+
 #[pymodule]
 fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(say_hello_to_python, m)?)?;
@@ -111,6 +127,10 @@ fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(dict_printer, m)?)?;
     let _ = m.add_class::<RustStruct>();
     m.add_function(wrap_pyfunction!(human_say_hi, m)?)?;
+
+    pyo3_log::init();
+    m.add_wrapped(wrap_pyfunction!(log_example))?;
+    m.add_wrapped(wrap_pyfunction!(log_different_levels))?;
 
     Ok(())
 }
