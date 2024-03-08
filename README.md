@@ -7,7 +7,7 @@ cargo new --lib rustcore
 ```
 
 修改 Cargo.toml 配置项目为 C动态库类型 cdylib
-```shell
+```toml
 [lib]
 name = "rustcore"
 # "cdylib" is necessary to produce a shared library for Python to import from.
@@ -26,7 +26,7 @@ micromamba create -p ./venv python=3.9
 ```
 
 测试交互代码
-```shell
+```rust
 use pyo3::prelude::*;
 
 #[pyfunction]
@@ -39,4 +39,16 @@ fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(say_hello_to_python, m)?)?;
     Ok(())
 }
+```
+
+python端配置
+```shell
+pip install maturin -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+python端测试交互代码
+```python
+import rustcore
+
+rustcore.say_hello_to_python()
 ```
