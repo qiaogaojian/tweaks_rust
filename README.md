@@ -1,12 +1,13 @@
-
 ## Rust 和 Python 交互流程
 
 新建项目
+
 ```shell
 cargo new --lib rustcore
 ```
 
 修改 Cargo.toml 配置项目为 C动态库类型 cdylib
+
 ```toml
 [lib]
 name = "rustcore"
@@ -16,16 +17,19 @@ create-type = ["cdylib"]
 ```
 
 添加 pyo3
+
 ```shell
 cargo add pyo3@0.20.3 --features "extension-module"
 ```
 
-创建python虚拟环境
+创建 python 虚拟环境
+
 ```shell
 micromamba create -p ./venv python=3.9
 ```
 
 测试交互代码
+
 ```rust
 use pyo3::prelude::*;
 
@@ -41,12 +45,22 @@ fn rustcore(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 ```
 
-python端配置
+python 端配置
+
 ```shell
 pip install maturin -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-python端测试交互代码
+python 端安装或更新 rust 端库
+
+```shell
+micromamba activate ./venv
+cd lib/rustcore
+maturin develop --release
+```
+
+python 端测试交互代码
+
 ```python
 import rustcore
 
